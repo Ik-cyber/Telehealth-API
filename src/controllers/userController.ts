@@ -2,14 +2,15 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt, { Secret } from 'jsonwebtoken';
 import configVal from '../config/config';
-import User, { IUser } from '../models/user.module';
+import User from '../models/user.module';
 
 const saltRounds = 10;
 const { JWTSECRET } = configVal;
 
 interface UserData {
   id: any;
-  email: string;
+  username: string;
+  role: string;
 }
 
 const generateJsonWebToken = (user: UserData) => {
@@ -19,7 +20,8 @@ const generateJsonWebToken = (user: UserData) => {
 
   const payload = {
     id: user.id,
-    email: user.email
+    username: user.username,
+    role: user.role
   };
 
   return jwt.sign(payload, JWTSECRET as Secret, { expiresIn: '1h' });
@@ -49,7 +51,7 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const userData: UserData = { id: user._id, email: user.email };
+    const userData: UserData = { id: user._id, role: user.role, username: user.username };
     const token = generateJsonWebToken(userData);
 
     res.status(200).json({ user, token });
@@ -59,7 +61,7 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
