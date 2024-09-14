@@ -61,12 +61,12 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-  const { name, email, password, } = req.body;
+  const { name, email, password, role } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const user = new User({ name, email, password: hashedPassword });
+    const user = new User({ username: name, email, password: hashedPassword, role });
     await user.save();
 
     res.status(201).json({ message: 'User successfully added.' });
